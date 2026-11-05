@@ -3,12 +3,16 @@
 <title>iPhone Home mock</title>
 <style>
 /* System colors as iOS defines them. "--attn" is the proposed Attention Color Set:
-   systemOrange's increased-contrast value in light, systemOrange in dark. */
+   systemOrange's increased-contrast value in light, systemOrange in dark.
+   "--accent-fill" is the prominent button fill: system blue, except that it keeps
+   #0A84FF under Increase Contrast in dark so white text stays above 3:1.
+   Content sizes are in rem so they follow the text size, as Dynamic Type does.
+   The status bar, nav buttons and tab bar keep the system's fixed sizes. */
 :root{
  --page:#e5e5ea;--grouped:#f2f2f7;--row:#fff;
  --label:#000;--label2:rgba(60,60,67,.6);--label3:rgba(60,60,67,.3);--sep:rgba(60,60,67,.29);
  --fill2:rgba(120,120,128,.16);--fill3:rgba(118,118,128,.12);
- --blue:#007aff;--red:#ff3b30;--orange:#ff9500;--yellow:#ffcc00;--teal:#30b0c7;--attn:#c93400;
+ --blue:#007aff;--accent-fill:#007aff;--red:#ff3b30;--orange:#ff9500;--yellow:#ffcc00;--teal:#30b0c7;--attn:#c93400;
  --glass:rgba(255,255,255,.62);--glass-edge:rgba(0,0,0,.08);--bezel:#1d1d1f;
  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,"Helvetica Neue",Arial,sans-serif;
  color-scheme:light;
@@ -17,19 +21,19 @@
  --page:#111113;--grouped:#000;--row:#1c1c1e;
  --label:#fff;--label2:rgba(235,235,245,.6);--label3:rgba(235,235,245,.3);--sep:rgba(84,84,88,.6);
  --fill2:rgba(120,120,128,.32);--fill3:rgba(118,118,128,.24);
- --blue:#0a84ff;--red:#ff453a;--orange:#ff9f0a;--yellow:#ffd60a;--teal:#40c8e0;--attn:#ff9f0a;
+ --blue:#0a84ff;--accent-fill:#0a84ff;--red:#ff453a;--orange:#ff9f0a;--yellow:#ffd60a;--teal:#40c8e0;--attn:#ff9f0a;
  --glass:rgba(40,40,42,.62);--glass-edge:rgba(255,255,255,.1);--bezel:#3a3a3c;color-scheme:dark}}
 :root[data-theme="dark"]{
  --page:#111113;--grouped:#000;--row:#1c1c1e;
  --label:#fff;--label2:rgba(235,235,245,.6);--label3:rgba(235,235,245,.3);--sep:rgba(84,84,88,.6);
  --fill2:rgba(120,120,128,.32);--fill3:rgba(118,118,128,.24);
- --blue:#0a84ff;--red:#ff453a;--orange:#ff9f0a;--yellow:#ffd60a;--teal:#40c8e0;--attn:#ff9f0a;
+ --blue:#0a84ff;--accent-fill:#0a84ff;--red:#ff453a;--orange:#ff9f0a;--yellow:#ffd60a;--teal:#40c8e0;--attn:#ff9f0a;
  --glass:rgba(40,40,42,.62);--glass-edge:rgba(255,255,255,.1);--bezel:#3a3a3c;color-scheme:dark}
 /* Increase Contrast: the system's high-contrast label and accent values. */
 @media (prefers-contrast:more){
- :root{--label2:rgba(60,60,67,.76);--label3:rgba(60,60,67,.5);--sep:rgba(60,60,67,.45);--blue:#0040dd;--attn:#c93400;--glass-edge:rgba(0,0,0,.3)}
- @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--label2:rgba(235,235,245,.76);--label3:rgba(235,235,245,.5);--sep:rgba(84,84,88,.9);--blue:#409cff;--attn:#ffb340;--glass-edge:rgba(255,255,255,.3)}}
- :root[data-theme="dark"]{--label2:rgba(235,235,245,.76);--label3:rgba(235,235,245,.5);--sep:rgba(84,84,88,.9);--blue:#409cff;--attn:#ffb340;--glass-edge:rgba(255,255,255,.3)}
+ :root{--label2:rgba(60,60,67,.76);--label3:rgba(60,60,67,.5);--sep:rgba(60,60,67,.45);--blue:#0040dd;--accent-fill:#0040dd;--red:#d70015;--yellow:#b25000;--teal:#008299;--attn:#c93400;--glass-edge:rgba(0,0,0,.3)}
+ @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--label2:rgba(235,235,245,.76);--label3:rgba(235,235,245,.5);--sep:rgba(84,84,88,.9);--blue:#409cff;--accent-fill:#0a84ff;--red:#ff6961;--yellow:#ffd426;--teal:#5de6ff;--attn:#ffb340;--glass-edge:rgba(255,255,255,.3)}}
+ :root[data-theme="dark"]{--label2:rgba(235,235,245,.76);--label3:rgba(235,235,245,.5);--sep:rgba(84,84,88,.9);--blue:#409cff;--accent-fill:#0a84ff;--red:#ff6961;--yellow:#ffd426;--teal:#5de6ff;--attn:#ffb340;--glass-edge:rgba(255,255,255,.3)}
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--page);font-family:var(--font);color:var(--label);padding:24px 16px 40px;-webkit-font-smoothing:antialiased}
@@ -39,30 +43,33 @@ body{background:var(--page);font-family:var(--font);color:var(--label);padding:2
 .wrap{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
 .col{width:390px;max-width:100%}
 .col>h1{font:600 13px/1.3 var(--font);text-align:center;margin-bottom:10px;color:var(--label2);letter-spacing:.04em;text-transform:uppercase}
+/* padding-bottom is set by layout() from the measured banner and tab bar */
 .phone{width:100%;border-radius:52px;background:var(--grouped);border:10px solid var(--bezel);overflow:hidden;position:relative;padding-bottom:178px}
 svg.i{display:inline-block;flex:none;vertical-align:middle}
+.probe{position:absolute;visibility:hidden;width:1rem;height:1rem;pointer-events:none}
 
 /* Status bar and navigation bar (functional layer: glass buttons) */
 .status{display:flex;justify-content:space-between;align-items:center;padding:16px 28px 0;font:600 17px/22px var(--font)}
 .status .r{display:flex;gap:6px;align-items:center}
 .nav{display:flex;justify-content:space-between;padding:8px 16px 0}
 .gbtn{width:44px;height:44px;border-radius:50%;background:var(--glass);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);box-shadow:inset 0 0 0 .5px var(--glass-edge),0 2px 8px rgba(0,0,0,.1);display:grid;place-items:center;color:var(--label)}
-.large{font:700 34px/41px var(--font);letter-spacing:.01em;padding:4px 20px 0}
+.large{font:700 2.125rem/1.206 var(--font);letter-spacing:.01em;padding:4px 20px 0}
 
 /* List content: opaque grouped backgrounds only */
 .list{padding:0 16px}
-.hdr{display:flex;align-items:baseline;gap:8px;padding:22px 16px 8px;font:600 17px/22px var(--font);color:var(--label)}
+.hdr{display:flex;align-items:baseline;gap:8px;padding:22px 16px 8px;font:600 1.0625rem/1.294 var(--font);color:var(--label)}
 .hdr .n{color:var(--attn)}
 .group{background:var(--row);border-radius:22px;overflow:hidden}
 .row{display:flex;align-items:center;gap:12px;padding:0 0 0 16px;min-height:44px}
 .row .body{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:11px 16px 11px 0}
 .row+.row .body{box-shadow:inset 0 .5px 0 var(--sep)}
-.tile{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font:700 13px/1 var(--font);flex:none}
+.tile{width:1.75rem;height:1.75rem;border-radius:.5rem;display:grid;place-items:center;font:700 .8125rem/1 var(--font);flex:none}
 .tx{flex:1;min-width:0}
 .l1{display:flex;align-items:baseline;gap:6px}
-.t{flex:1;min-width:0;font:400 17px/22px var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.d{font:400 15px/20px var(--font);color:var(--label2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.age{font:400 13px/18px var(--font);color:var(--label2);font-variant-numeric:tabular-nums;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
+.t{flex:1;min-width:0;font:400 1.0625rem/1.294 var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d{font:400 .9375rem/1.333 var(--font);color:var(--label2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.age{font:400 .8125rem/1.385 var(--font);color:var(--label2);font-variant-numeric:tabular-nums;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
+.age.wait{color:var(--label)}
 .age.hot{color:var(--attn);font-weight:600}
 .chev{color:var(--label3);display:grid;place-items:center}
 .mark{display:inline-grid;place-items:center;align-self:center}
@@ -71,38 +78,43 @@ svg.i{display:inline-block;flex:none;vertical-align:middle}
 .cards{display:flex;flex-direction:column;gap:10px}
 .card{background:var(--row);border-radius:22px;padding:14px 16px 16px}
 .card .head{display:flex;gap:10px;align-items:center}
-.card .ct{font:600 17px/22px var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.card .ct{font:600 1.0625rem/1.294 var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
 .l2{display:flex;align-items:baseline;gap:6px}.l2 .d{flex:1;min-width:0}
-.card .q{font:400 17px/22px var(--font);margin:10px 0 12px}
+.card .q{font:400 1.0625rem/1.294 var(--font);margin:10px 0 12px}
 .opts{display:flex;gap:8px}
-.opt{flex:1 1 auto;min-width:0;min-height:44px;display:grid;place-items:center;border-radius:22px;font:400 17px/22px var(--font);white-space:nowrap;padding:0 8px}
+.opt{flex:1 1 auto;min-width:0;min-height:44px;display:grid;place-items:center;border-radius:22px;font:400 1.0625rem/1.294 var(--font);white-space:nowrap;overflow:hidden;padding:0 8px}
 /* before: the app's glass buttons */
 .before .card{border:1px solid color-mix(in srgb,var(--red) 35%,transparent)}
-.before .card .ct{font:600 15px/20px var(--font)}
-.before .card .d{font-size:12px;line-height:16px}
+.before .card .ct{font:600 .9375rem/1.333 var(--font)}
+.before .card .d{font-size:.75rem;line-height:1.333}
 .before .opt{background:var(--glass);box-shadow:inset 0 0 0 .5px var(--glass-edge),0 1px 4px rgba(0,0,0,.08)}
 .before .opt.p{background:var(--red);color:#fff;font-weight:600}
-/* after: system bordered and bordered-prominent, default accent */
-.after .opt{background:var(--fill2);color:var(--blue)}
-.after .opt.p{background:var(--blue);color:#fff;font-weight:600}
+/* after: system bordered (label tint) and bordered-prominent (accent) */
+.after .opt{background:var(--fill2);color:var(--label)}
+.after .opt.p{background:var(--accent-fill);color:#fff;font-weight:600}
+/* ViewThatFits: the buttons stack when they do not fit on one line */
+.opts.stack{flex-direction:column}
+.opts.stack .opt{white-space:normal;text-align:center;padding:10px 12px}
+/* Accessibility text sizes: titles and meta wrap (up to 3 lines) instead of clipping */
+html.ax .after .t,html.ax .after .ct,html.ax .after .d{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+html.ax .after .l1,html.ax .after .l2{flex-wrap:wrap;row-gap:2px}
+html.ax .after .l1 .t,html.ax .after .l1 .ct,html.ax .after .l2 .d{flex:1 1 100%}
+html.ax .after .card .l1 .ct{flex-basis:0}
 
-/* Floating chrome: banner capsule above the tab bar, and the tab bar */
+/* Floating chrome. Before: the app's glass capsule above the tab bar (a safeAreaInset).
+   After: the tab bar's bottom accessory, part of the tab bar chrome. */
 .toast{position:absolute;left:16px;right:16px;bottom:100px;min-height:48px;background:var(--glass);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-radius:26px;padding:8px 16px;display:flex;gap:10px;align-items:center;box-shadow:inset 0 0 0 .5px var(--glass-edge),0 4px 14px rgba(0,0,0,.12)}
-.toast b{font:500 15px/20px var(--font);display:block}
-.toast span{font:400 12px/16px var(--font);color:var(--label2)}
-.after .toast span{font-size:13px;line-height:18px}
+.toast b{font:500 .9375rem/1.333 var(--font);display:block}
+.toast span{font:400 .75rem/1.333 var(--font);color:var(--label2)}
+.after .toast{left:22px;right:22px}
+.after .toast b{font-weight:600}
+.after .toast span{font-size:.8125rem;line-height:1.385;color:var(--label)}
 .tabs{position:absolute;left:22px;right:22px;bottom:22px;height:64px;border-radius:32px;background:var(--glass);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);display:flex;justify-content:space-between;align-items:center;padding:4px;box-shadow:inset 0 0 0 .5px var(--glass-edge),0 4px 14px rgba(0,0,0,.12)}
 .tab{flex:1;height:56px;border-radius:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:500 10px/12px var(--font);color:var(--label);position:relative}
 .tab.on{background:var(--fill3);color:var(--blue)}
 .badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font:600 13px/18px var(--font);text-align:center;padding:0 5px}
 
 @media (prefers-reduced-transparency:reduce){.gbtn,.toast,.tabs,.before .opt{background:var(--row);backdrop-filter:none;-webkit-backdrop-filter:none}}
-
-/* State change demo */
-@keyframes enter{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
-@keyframes fade{from{opacity:0}to{opacity:1}}
-.enter{animation:enter .32s cubic-bezier(.2,.9,.3,1.05)}
-@media (prefers-reduced-motion:reduce){.enter{animation:fade .2s ease-out}}
 
 /* Notes and legend */
 .legend{margin-top:16px;font:400 13px/18px var(--font);color:var(--label2)}
@@ -111,10 +123,11 @@ svg.i{display:inline-block;flex:none;vertical-align:middle}
 .legend b{color:var(--label);font-weight:600}
 .key{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0 2px}
 .key span{display:inline-flex;align-items:center;gap:5px;color:var(--label)}
-.demo{margin-top:12px;font:600 15px/20px var(--font);color:#fff;background:var(--blue);border:0;border-radius:22px;min-height:44px;padding:0 18px;cursor:pointer}
+.demo{margin-top:12px;font:600 15px/20px var(--font);color:#fff;background:var(--accent-fill);border:0;border-radius:22px;min-height:44px;padding:0 18px;cursor:pointer}
 .note{max-width:860px;margin:28px auto 0;font:400 13px/1.5 var(--font);color:var(--label2)}
 @media (max-width:440px){.phone{border-width:6px;border-radius:40px}}
 </style></head><body>
+<div class="probe" id="probe" aria-hidden="true"></div>
 <div class="top" role="group" aria-label="Appearance">
  <button data-t="auto" aria-pressed="true">Auto</button><button data-t="light" aria-pressed="false">Light</button><button data-t="dark" aria-pressed="false">Dark</button>
 </div>
@@ -124,19 +137,19 @@ svg.i{display:inline-block;flex:none;vertical-align:middle}
   <div class="legend">
    <h2>What changed</h2>
    <ol>
-    <li><b>Type:</b> iOS text styles only. Large Title 34 bold for "Home", headers 17 semibold, row and card titles 17 (Body, Headline), meta line 15 (Subheadline), age 13 (Footnote), tab labels 10. No 14 or 16.</li>
-    <li><b>Order and count:</b> Needs you, Working, Idle, Done. Only "Needs you" has a count; it equals its rows and the system tab badge.</li>
-    <li><b>Orange appears three times only:</b> the waiting glyph, the age label after 5 minutes and the Needs you count. Card border, allow-once button and offline icon are no longer orange.</li>
-    <li><b>Age has a non-color cue:</b> it always says "waiting 1m"; after 5 minutes it adds a clock symbol and turns semibold.</li>
-    <li><b>Glyph shapes differ per state</b>, not only their color:</li>
+    <li><b>Type:</b> iOS text styles for all content: Large Title 34 bold for "Home", headers 17 semibold, row and card titles 17 (Body, Headline), meta line 15 (Subheadline), age 13 (Footnote). No 14 or 16. Tab labels are the system tab bar's own fixed 10 pt, not a text style the app sets. Content grows with the text size; at accessibility sizes titles and meta wrap up to 3 lines and the answer buttons stack.</li>
+    <li><b>Order and count:</b> Needs you, Working, Idle, Done. Only "Needs you" has a count; it equals the rows in that section, and the system tab badge is changed to show the same number.</li>
+    <li><b>Orange marks needs you only:</b> the waiting glyph, the age label after 5 minutes with its clock symbol, and the Needs you count. Card border and allow-once button are no longer red, and the offline icon is no longer orange.</li>
+    <li><b>Age has a non-color cue:</b> it always says "waiting 1m" in the label color; after 5 minutes it adds a clock symbol, turns semibold and takes the attention color. VoiceOver reads "Waiting for you, 7 minutes".</li>
+    <li><b>Glyph shapes differ per state</b>, so color is not needed to tell them apart. Only the waiting glyph is colored; working, done and failed use the secondary label color:</li>
    </ol>
    <div class="key" id="key"></div>
    <ol start="6">
     <li><b>Agent logos</b> are monochrome: label-color mark on a system fill (`.fill.secondary`).</li>
-    <li><b>Glass</b> only on the nav bar buttons, tab bar and the floating banner capsule, which is system-style chrome over the list, not a list row. Rows, headers, answer cards and their buttons are opaque. Under Reduce Transparency the chrome turns solid.</li>
-    <li><b>Targets</b> are at least 44 pt: nav buttons, rows, answer buttons, tabs.</li>
-    <li><b>Colors</b> are system label, fill and grouped background colors in light and dark, with Increase Contrast values. The attention color is a Color Set so 13 pt text passes 4.5:1 (5.3:1 light, 8.3:1 dark).</li>
-    <li><b>Motion:</b> when an agent starts needing you, its row fades and slides in once (cross-fade only under Reduce Motion) and one notification haptic fires on that frame. Nothing moves on refresh or on an age tick, and nothing pulses.</li>
+    <li><b>Glass</b> only on the nav bar buttons and the tab bar. The offline banner is the tab bar's bottom accessory (`tabViewBottomAccessory`), so it is part of the tab bar chrome, and the list's bottom inset clears it at every text size. Rows, headers, answer cards and their buttons are opaque. Under Reduce Transparency the chrome turns solid.</li>
+    <li><b>Targets</b> are at least 44 pt: nav buttons, rows, answer buttons, tabs. Answer buttons are `.bordered` in the label color with allow-once `.borderedProminent` in the accent, and stack when they do not fit (`ViewThatFits`).</li>
+    <li><b>Colors</b> are system label, fill and grouped background colors in light and dark, with Increase Contrast values. The attention color is a Color Set so 13 pt text passes 4.5:1 (5.3:1 light, 8.3:1 dark). Open question: the meta line uses the system secondary label color, about 3.4:1 on white in light, so "system label colors" and "4.5:1 for text" disagree there; the owner decides. The tab bar's selected label and badge are drawn by the system and keep its colors.</li>
+    <li><b>Motion:</b> when an agent starts needing you, its row moves once from its place in Working to Needs you with a short spring (a cross-fade under Reduce Motion) and one notification haptic fires on that frame. Nothing moves on refresh, a row update or an age tick. The waiting glyph does not pulse, and the working glyph's effect stops under Reduce Motion.</li>
    </ol>
    <button class="demo" id="demo" type="button">Simulate: an agent starts needing you</button>
   </div>
@@ -158,7 +171,8 @@ const P={
  gear:'<circle cx="10" cy="10" r="2.8" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 1.8v2.6M10 15.6v2.6M1.8 10h2.6M15.6 10h2.6M4.2 4.2l1.9 1.9M13.9 13.9l1.9 1.9M4.2 15.8l1.9-1.9M13.9 6.1l1.9-1.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="10" r="6.2" fill="none" stroke="currentColor" stroke-width="1.7"/>',
  wifix:'<path d="M2 7.5a11.5 11.5 0 0 1 16 0M4.8 10.4a7.5 7.5 0 0 1 10.4 0M7.6 13.2a3.5 3.5 0 0 1 4.8 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="10" cy="16" r="1.3" fill="currentColor"/><path d="M3 2.5l14 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>'
 };
-const ic=(k,s=20,c='currentColor',label)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 20 20" style="color:${c}" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}>${P[k]}</svg>`;
+/* Content glyphs are sized in rem so they grow with the text; fixed=true for system chrome. */
+const ic=(k,s=20,c='currentColor',label,fixed)=>{const z=fixed?`${s}px`:`${s/16}rem`;return `<svg class="i" viewBox="0 0 20 20" style="width:${z};height:${z};color:${c}" ${label?`role="img" aria-label="${label}"`:'aria-hidden="true"'}>${P[k]}</svg>`};
 const A={claude:['#d9643a','#fff','C'],codex:['#111','#fff','X'],oc:['var(--fill3)','var(--label)','O']};
 const base=[
  {id:1,s:'need',a:'claude',t:'Migrate auth tokens',d:'m4max · api-server',q:'Run npm test in api-server?',w:7,opts:['Allow once','Always','Deny']},
@@ -170,36 +184,37 @@ const base=[
  {id:7,s:'work',a:'oc',t:'OC | Quick greeting',d:'m4max · api-server',timer:'0:52'},
  {id:8,s:'idle',a:'claude',t:'commit and push now',d:'studio · mobile improvements',age:'4m'},
 ];
-let moved=false,flash=null;
+let moved=false;
 const stateLabel={need:'Needs you',work:'Working',done:'Done',idle:'Idle',fail:'Failed'};
+const waitLabel=w=>w<1?'Waiting for you, less than a minute':`Waiting for you, ${w} minute${w===1?'':'s'}`;
 function tile(a,after){const [bg,fg,l]=A[a];return after?`<div class="tile" style="background:var(--fill3);color:var(--label)" aria-hidden="true">${l}</div>`:`<div class="tile" style="background:${bg};color:${fg}" aria-hidden="true">${l}</div>`}
-/* Before: StatusMark in ChatRowLabel. After: one glyph per state, distinct silhouettes. */
+/* Before: StatusMark in ChatRowLabel. After: one glyph per state, distinct silhouettes,
+   only the waiting glyph in color. */
 function mark(c,after){
  if(!after){
   if(c.s==='need')return `<span class="mark" role="img" aria-label="Needs you"><span style="width:9px;height:9px;border-radius:50%;background:var(--red);display:block"></span></span>`;
   if(c.s==='work')return `<span class="mark">${ic('dots',16,'var(--yellow)','Working')}</span>`;
   if(c.s==='done')return `<span class="mark">${ic('check',12,'var(--teal)','Done')}</span>`;
   return '';}
- if(c.s==='need')return `<span class="mark">${ic('bang',20,'var(--attn)',`Waiting for you, ${c.w||0} minutes`)}</span>`;
- if(c.s==='work')return `<span class="mark">${ic('dots',18,'var(--yellow)','Working')}</span>`;
- if(c.s==='done')return `<span class="mark">${ic('check',16,'var(--teal)','Done')}</span>`;
- if(c.s==='fail')return `<span class="mark">${ic('oct',20,'var(--red)','Failed')}</span>`;
+ if(c.s==='need')return `<span class="mark">${ic('bang',20,'var(--attn)',waitLabel(c.w||0))}</span>`;
+ if(c.s==='work')return `<span class="mark">${ic('dots',18,'var(--label2)','Working')}</span>`;
+ if(c.s==='done')return `<span class="mark">${ic('check',16,'var(--label2)','Done')}</span>`;
+ if(c.s==='fail')return `<span class="mark">${ic('oct',20,'var(--label2)','Failed')}</span>`;
  return '';}
 function age(c,after){
  if(c.s==='need'){
   if(!after)return '';
   const hot=c.w>=5, txt=c.w<1?'waiting now':`waiting ${c.w}m`;
-  return `<span class="age${hot?' hot':''}">${hot?ic('clock',13,'var(--attn)'):''}${txt}</span>`;}
+  return `<span class="age wait${hot?' hot':''}" aria-hidden="true">${hot?ic('clock',13,'var(--attn)'):''}${txt}</span>`;}
  if(c.timer)return `<span class="age">${c.timer}</span>`;
  return c.age?`<span class="age">${c.age}</span>`:'';}
 function row(c,after){
- const cls=flash===c.id&&after?' enter':'';
- return `<div class="row${cls}">${tile(c.a,after)}<div class="body"><div class="tx"><div class="l1"><span class="t">${c.t}</span>${age(c,after)}${mark(c,after)}</div><div class="d">${c.d}</div></div><span class="chev">${ic('chev',13)}</span></div></div>`}
+ return `<div class="row" data-id="${c.id}">${tile(c.a,after)}<div class="body"><div class="tx"><div class="l1"><span class="t">${c.t}</span>${age(c,after)}${mark(c,after)}</div><div class="d">${c.d}</div></div><span class="chev">${ic('chev',13)}</span></div></div>`}
 function card(c,after){
  const head=after
   ?`<div class="head">${tile(c.a,true)}<div class="tx"><div class="l1"><span class="ct">${c.t}</span>${mark(c,true)}</div><div class="l2"><span class="d">${c.d}</span>${age(c,true)}</div></div></div>`
-  :`<div class="head">${A[c.a]?`<div class="tile" style="width:24px;height:24px;border-radius:7px;font-size:11px;background:${A[c.a][0]};color:${A[c.a][1]}">${A[c.a][2]}</div>`:''}<div class="tx"><div class="ct">${c.t}</div><div class="d">${c.d}</div></div></div>`;
- return `<div class="card">${head}<div class="q">${c.q}</div><div class="opts">${c.opts.map(o=>`<div class="opt${o==='Allow once'?' p':''}" role="button">${o}</div>`).join('')}</div></div>`}
+  :`<div class="head">${A[c.a]?`<div class="tile" style="width:1.5rem;height:1.5rem;border-radius:7px;font-size:.6875rem;background:${A[c.a][0]};color:${A[c.a][1]}">${A[c.a][2]}</div>`:''}<div class="tx"><div class="ct">${c.t}</div><div class="d">${c.d}</div></div></div>`;
+ return `<div class="card" data-id="${c.id}">${head}<div class="q">${c.q}</div><div class="opts">${c.opts.map(o=>`<div class="opt${o==='Allow once'?' p':''}" role="button">${o}</div>`).join('')}</div></div>`}
 function sec(title,items,after){
  if(!items.length)return '';
  const count=after&&title==='Needs you'?`<span class="n" aria-label="${items.length} agents">${items.length}</span>`:'';
@@ -214,18 +229,41 @@ function phone(after){
  const order=after?[['Needs you','need'],['Working','work'],['Idle','idle'],['Done','done']]:[['Needs you','need'],['Done','done'],['Working','work'],['Idle','idle']];
  const waiting=by('need').length;
  return `<div class="status"><span>9:21</span><span class="r"><svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg width="27" height="13" viewBox="0 0 27 13" aria-hidden="true"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="14" height="9" rx="2" fill="currentColor"/><rect x="25" y="4.5" width="1.5" height="4" rx=".7" fill="currentColor" opacity=".4"/></svg></span></div>
- <div class="nav"><div class="gbtn" role="button" aria-label="Sort agents">${ic('sort',19)}</div><div class="gbtn" role="button" aria-label="New Workspace">${ic('plus',19)}</div></div>
+ <div class="nav"><div class="gbtn" role="button" aria-label="Sort agents">${ic('sort',19,undefined,undefined,true)}</div><div class="gbtn" role="button" aria-label="New Workspace">${ic('plus',19,undefined,undefined,true)}</div></div>
  ${after?'<div class="large" role="heading" aria-level="1">Home</div>':''}
  <div class="list">${order.map(([t,s])=>sec(t,by(s),after)).join('')}</div>
  <div class="toast" role="status">${ic('wifix',20,after?'var(--label2)':'var(--orange)')}<div><b>9950x3d is offline</b><span>Showing chats as of 1:02 AM</span></div></div>
- <div class="tabs" role="tablist"><div class="tab on" role="tab" aria-selected="true">${ic('house',24)}Home<span class="badge" aria-label="${waiting} waiting">${waiting}</span></div><div class="tab" role="tab">${ic('stack',24)}Workspaces</div><div class="tab" role="tab">${ic('gear',24)}Settings</div></div>`}
+ <div class="tabs" role="tablist"><div class="tab on" role="tab" aria-selected="true">${ic('house',24,undefined,undefined,true)}Home<span class="badge" aria-label="${waiting} waiting">${waiting}</span></div><div class="tab" role="tab">${ic('stack',24,undefined,undefined,true)}Workspaces</div><div class="tab" role="tab">${ic('gear',24,undefined,undefined,true)}Settings</div></div>`}
+/* Measured layout: accessibility text sizes, button stacking, banner position and list inset. */
+function layout(){
+ const rem=document.getElementById('probe').getBoundingClientRect().width||16;
+ document.documentElement.classList.toggle('ax',rem>=22);
+ document.querySelectorAll('.after .opts').forEach(o=>{
+  o.classList.remove('stack');
+  if([...o.children].some(b=>b.scrollWidth>b.clientWidth+1))o.classList.add('stack');});
+ document.querySelectorAll('.phone').forEach(p=>{
+  const tabs=p.querySelector('.tabs'), toast=p.querySelector('.toast');
+  const tabTop=22+tabs.offsetHeight, gap=p.classList.contains('after')?8:14;
+  toast.style.bottom=(tabTop+gap)+'px';
+  p.style.paddingBottom=(tabTop+gap+toast.offsetHeight+16)+'px';});}
 function render(){
  document.getElementById('before').innerHTML=phone(false);
- document.getElementById('after').innerHTML=phone(true);}
-document.getElementById('key').innerHTML=[['need','bang','var(--attn)'],['work','dots','var(--yellow)'],['done','check','var(--teal)'],['fail','oct','var(--red)']].map(([s,k,c])=>`<span>${ic(k,18,c)}${stateLabel[s]}</span>`).join('')+'<span style="color:var(--label2)">Idle: no glyph</span>';
+ document.getElementById('after').innerHTML=phone(true);
+ layout();}
+document.getElementById('key').innerHTML=[['need','bang','var(--attn)'],['work','dots','var(--label2)'],['done','check','var(--label2)'],['fail','oct','var(--label2)']].map(([s,k,c])=>`<span>${ic(k,18,c)}${stateLabel[s]}</span>`).join('')+'<span style="color:var(--label2)">Idle: no glyph</span>';
+/* The moved row starts from where it was in Working (FLIP), or cross-fades under Reduce Motion. */
 document.getElementById('demo').addEventListener('click',e=>{
- moved=!moved; flash=moved?7:null; render(); flash=null;
- e.currentTarget.textContent=moved?'Reset the demo':'Simulate: an agent starts needing you';});
+ const was=document.querySelector('#after [data-id="7"]');
+ const from=was?was.getBoundingClientRect().top:null;
+ moved=!moved; render();
+ e.currentTarget.textContent=moved?'Reset the demo':'Simulate: an agent starts needing you';
+ if(!moved)return;
+ const el=document.querySelector('#after [data-id="7"]');
+ if(!el||!el.animate)return;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.animate([{opacity:0},{opacity:1}],{duration:200,easing:'ease-out'});return;}
+ const dy=from===null?0:from-el.getBoundingClientRect().top;
+ el.style.position='relative';el.style.zIndex='1';
+ el.animate([{transform:`translateY(${dy}px)`},{transform:'none'}],{duration:350,easing:'cubic-bezier(.2,.9,.3,1.05)'});});
 function theme(t){
  if(t==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t);
  document.querySelectorAll('.top button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===t)));
@@ -236,5 +274,7 @@ const qp=new URLSearchParams(location.search).get('theme');
 if(qp)start=qp;else{try{start=localStorage.getItem('mock-theme')||'auto'}catch(_){}}
 theme(start);
 render();
+if(window.ResizeObserver){const ro=new ResizeObserver(()=>layout());ro.observe(document.getElementById('probe'));document.querySelectorAll('.phone').forEach(p=>ro.observe(p.querySelector('.list')));}
+addEventListener('resize',layout);
 </script>
 </body></html>
