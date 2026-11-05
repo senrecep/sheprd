@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iPhone Home mock</title>
+<style>
+:root{--bg:#f2f2f7;--card:#fff;--text:#000;--sec:#8a8a8e;--sep:#c6c6c8;--fill:#e5e5ea;--red:#ff3b30;--orange:#ff9500;--yellow:#ffcc00;--teal:#30b0c7;--glass:rgba(255,255,255,.72);--page:#d9d9de}
+@media (prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--text:#fff;--sec:#8d8d93;--sep:#38383a;--fill:#2c2c2e;--red:#ff453a;--orange:#ff9f0a;--yellow:#ffd60a;--teal:#40c8e0;--glass:rgba(40,40,42,.72);--page:#111}}
+*{box-sizing:border-box;margin:0}
+body{background:var(--page);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;color:var(--text);padding:24px 16px}
+.wrap{display:flex;gap:40px;justify-content:center;flex-wrap:wrap}
+h1{font-size:15px;font-weight:600;text-align:center;margin-bottom:10px;color:var(--sec);letter-spacing:.02em}
+.phone{width:390px;height:1090px;border-radius:52px;background:var(--bg);border:10px solid #1d1d1f;overflow:hidden;position:relative}
+.status{display:flex;justify-content:space-between;padding:16px 30px 0;font-size:15px;font-weight:600}
+.bar{display:flex;justify-content:space-between;padding:10px 16px 4px}
+.btn{width:38px;height:38px;border-radius:50%;background:var(--glass);backdrop-filter:blur(12px);display:grid;place-items:center;font-size:18px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.list{padding:0 16px 200px}
+.hdr{font-size:15px;font-weight:600;padding:18px 16px 6px;display:flex;gap:6px}
+.hdr .n{color:var(--sec);font-weight:500}
+.group{background:var(--card);border-radius:22px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:10px 14px}
+.row+.row .body{border-top:.5px solid var(--sep)}
+.row+.row{padding-top:0}.row+.row .body{padding-top:10px}
+.tile{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.body{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+.tx{flex:1;min-width:0}
+.t{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d{font-size:14px;color:var(--sec);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.age{font-size:13px;color:var(--sec);font-variant-numeric:tabular-nums}
+.age.hot{color:var(--orange);font-weight:600}
+.chev{color:var(--sep);font-size:18px}
+.mk{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700;flex:none}
+.card{background:var(--card);border-radius:22px;padding:14px;margin-bottom:8px;border:1px solid}
+.card .top{display:flex;gap:8px;align-items:center}
+.card .q{font-size:15px;margin:10px 0}
+.opts{display:flex;gap:8px}
+.opt{flex:1;text-align:center;padding:9px 0;border-radius:20px;background:var(--fill);font-size:15px;font-weight:500}
+.opt.p{color:#fff}
+.toast{position:absolute;left:14px;right:14px;bottom:96px;background:var(--glass);backdrop-filter:blur(14px);border-radius:24px;padding:9px 16px;display:flex;gap:10px;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.toast b{font-size:14px;display:block}.toast span{font-size:12px;color:var(--sec)}
+.tabs{position:absolute;left:30px;right:30px;bottom:24px;height:62px;border-radius:31px;background:var(--glass);backdrop-filter:blur(14px);display:flex;justify-content:space-around;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:11px;font-weight:500}
+.tabs div{text-align:center;padding:6px 14px;border-radius:24px}.tabs .on{background:var(--fill);color:#0a84ff}
+.tabs i{display:block;font-style:normal;font-size:20px}
+.note{max-width:860px;margin:24px auto 0;font-size:13px;color:var(--sec);line-height:1.5}
+</style></head><body>
+<div class="wrap">
+ <div><h1>BEFORE (today)</h1><div class="phone" id="before"></div></div>
+ <div><h1>AFTER (proposed)</h1><div class="phone" id="after"></div></div>
+</div>
+<p class="note">Same agents in both. After: Needs you first and Done last, counts in headers, orange only for needs you, monochrome agent tiles, wait time on needs-you cards (orange after 5 minutes), PR state as a word. Native grouped lists and system colors are kept; glass stays on the tab bar and banner. Sample data is illustrative.</p>
+<script>
+const A={claude:['#d9643a','#fff','C'],codex:['#111','#fff','X'],oc:['var(--fill)','var(--text)','O']};
+const chats=[
+ {s:'need',a:'claude',t:'Migrate auth tokens',d:'m4max · api-server',q:'Run npm test in api-server?',w:'7m',opts:['Allow once','Always','Deny']},
+ {s:'need',a:'codex',t:'Fix flaky upload test',d:'studio · web',q:'Edit tests/upload.spec.ts?',w:'1m',opts:['Allow once','Deny']},
+ {s:'done',a:'claude',t:'Agents on iOS app',d:'m4max · #1074 feat(remote): sorted agents',age:'2m',pr:'Ready'},
+ {s:'done',a:'claude',t:'PR review',d:'m4max · #1083 fix(remote): settings',age:'6m',pr:'Waiting'},
+ {s:'work',a:'oc',t:'OC | CI access issues in release',d:'m5max · seneschal'},
+ {s:'work',a:'oc',t:'OC | Code review instructions',d:'studio · quiet.md'},
+ {s:'work',a:'oc',t:'OC | Quick greeting',d:'m4max · #1083 fix(remote): settings'},
+ {s:'idle',a:'claude',t:'commit and push now',d:'studio · mobile improvements',age:'4m'},
+];
+function tile(a,mono){const [bg,fg,l]=A[a];return mono?`<div class="tile" style="background:var(--fill);color:var(--text)">${l}</div>`:`<div class="tile" style="background:${bg};color:${fg}">${l}</div>`}
+function mark(s,after){
+ if(s==='work')return `<div class="mk" style="background:var(--yellow)">···</div>`;
+ if(s==='done')return `<div class="mk" style="background:var(--teal)">✓</div>`;
+ return '';}
+function row(c,after){
+ let d=c.d;
+ if(after&&c.pr)d=d.replace(/#(\d+)/,`#$1 ${c.pr}`);
+ return `<div class="row">${tile(c.a,after)}<div class="body"><div class="tx"><div class="t">${c.t}</div><div class="d">${d}</div></div>${c.age?`<span class="age">${c.age}</span>`:''}${mark(c.s,after)}<span class="chev">›</span></div></div>`}
+function card(c,after){
+ const col=after?'var(--orange)':'var(--red)';
+ const hot=after&&parseInt(c.w)>=5;
+ return `<div class="card" style="border-color:color-mix(in srgb,${col} 40%,transparent)"><div class="top">${tile(c.a,after)}<div class="tx"><div class="t" style="font-size:15px;font-weight:600">${c.t}</div><div class="d" style="font-size:12px">${c.d}</div></div>${after?`<span class="age ${hot?'hot':''}">${c.w}</span>`:''}</div><div class="q">${c.q}</div><div class="opts">${c.opts.map(o=>`<div class="opt ${o==='Allow once'?'p':''}" style="${o==='Allow once'?'background:'+col:''}">${o}</div>`).join('')}</div></div>`}
+function sec(title,items,after,cards){
+ if(!items.length)return '';
+ const h=`<div class="hdr">${title}${after?`<span class="n">${items.length}</span>`:''}</div>`;
+ return h+(cards?items.map(c=>card(c,after)).join(''):`<div class="group">${items.map(c=>row(c,after)).join('')}</div>`)}
+function phone(after){
+ const by=s=>chats.filter(c=>c.s===s);
+ const order=after?[['Needs you','need'],['Working','work'],['Idle','idle'],['Done','done']]:[['Needs you','need'],['Done','done'],['Working','work'],['Idle','idle']];
+ return `<div class="status"><span>9:21</span><span>●●● 68</span></div><div class="bar"><div class="btn">⇅</div><div class="btn">+</div></div><div class="list">${order.map(([t,s])=>sec(t,by(s),after,s==='need')).join('')}</div>
+ <div class="toast"><span style="color:${after?'var(--sec)':'var(--orange)'};font-size:16px">⌁</span><div><b>9950x3d is offline</b><span>Showing chats as of 1:02 AM</span></div></div>
+ <div class="tabs"><div class="on"><i>⌂</i>Home</div><div><i>❏</i>Workspaces</div><div><i>⚙</i>Settings</div></div>`}
+document.getElementById('before').innerHTML=phone(false);
+document.getElementById('after').innerHTML=phone(true);
+</script>
+</body></html>
