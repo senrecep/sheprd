@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sheprd.org status marks</title>
+<style>
+:root {
+  --paper: #fbf6ee; --paper-2: #f4ece0; --ink: #23180f; --ink-2: #5b4b3d; --rule: #e3d5c2;
+  --orange: #b04518; --orange-soft: #f39a5a; --cream: #fff8f0;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Charter, Georgia, serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 1.125rem/1.6 var(--serif); }
+.wrap { width: min(84rem, 100% - 2rem); margin: 0 auto; padding: 2rem 0 3rem; }
+h1 { font: 600 2.4rem/1.1 var(--serif); letter-spacing: -.02em; margin: 0 0 .4rem; }
+.lede { font-style: italic; color: var(--ink-2); margin: 0 0 2rem; max-width: 52rem; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.4rem; }
+.col h2 { font: 600 .75rem/1.3 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 .8rem; }
+.col h2 b { color: var(--ink); }
+.note { font: 400 .85rem/1.5 var(--sans); color: var(--ink-2); margin: .7rem 0 0; }
+.sec { font: 600 1.5rem/1.2 var(--serif); margin: 0 0 1rem; border-top: 1px solid var(--rule); padding-top: 1.4rem; }
+
+/* board, same panel as the site */
+.board { --panel: #17181d; --panel-2: #1d1f26; --bline: #2a2e38; --dim: #a8a297; background: var(--panel); color: #ece6dc; border-radius: 12px; overflow: hidden; font-family: var(--mono); }
+.board-head { display: flex; align-items: center; gap: .8rem; padding: .65rem .9rem; border-bottom: 1px solid var(--bline); background: var(--panel-2); font-size: .75rem; color: var(--dim); }
+.dots { display: flex; gap: 6px; } .dots i { width: 10px; height: 10px; border-radius: 50%; background: #3a3f4b; }
+table { width: 100%; border-collapse: collapse; font-size: .8125rem; line-height: 1.4; }
+th { text-align: left; font-weight: 500; color: var(--dim); font-size: .6875rem; text-transform: uppercase; letter-spacing: .08em; padding: .6rem .9rem; border-bottom: 1px solid var(--bline); }
+td { padding: .6rem .9rem; border-bottom: 1px solid rgba(42,46,56,.6); white-space: nowrap; }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+.st { display: flex; align-items: center; gap: .5rem; min-width: 7rem; }
+.grp td { color: var(--dim); font-size: .6875rem; text-transform: uppercase; letter-spacing: .08em; padding: .5rem .9rem; }
+.grp.hot td { color: var(--orange-soft); }
+/* before */
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.b-working .dot { background: #f39a5a; } .b-working .w { color: #f39a5a; }
+.b-blocked .dot { background: #f0705a; } .b-blocked .w { color: #f0705a; }
+.b-done .dot { background: #6fd08f; } .b-done .w { color: #6fd08f; }
+.b-idle .dot { box-shadow: inset 0 0 0 1.5px #8d8984; } .b-idle .w { color: #a8a297; }
+/* after */
+.g { width: 14px; height: 14px; flex: none; color: var(--dim); }
+.a-needs .g, .a-needs .w, .a-needs .wait { color: var(--orange-soft); }
+.a-needs .w, .a-needs .wait { font-weight: 600; }
+.w { font-size: .75rem; color: var(--dim); }
+
+/* hero chips */
+.chips { display: flex; gap: 1rem; flex-wrap: wrap; }
+.chip { display: flex; align-items: center; gap: .45rem; padding: .55rem .85rem; border-radius: 12px; background: #fffdf9; box-shadow: 0 14px 30px -14px rgba(42,22,11,.5); font: 600 .82rem/1 var(--sans); }
+.chip .g { color: var(--ink-2); }
+.chip.needs .g, .chip.needs .t { color: var(--orange); }
+
+/* phone card */
+.phone { width: 270px; max-width: 100%; border-radius: 36px; background: #23180f; padding: 12px; }
+.screen { border-radius: 26px; background: linear-gradient(180deg, #fbe9db, var(--cream) 40%); padding: 1.6rem .85rem .9rem; display: grid; gap: .55rem; font-family: var(--sans); }
+.card { display: flex; gap: .6rem; align-items: center; background: rgba(255,255,255,.85); border-radius: 16px; padding: .65rem .75rem; box-shadow: 0 4px 12px rgba(29,42,58,.08); }
+.card b { display: block; font-size: .85rem; } .card small { color: #5b4b3d; font-size: .78rem; }
+.card .g { color: var(--ink-2); }
+.card.needs .g, .card.needs .wait { color: var(--orange); font-weight: 650; }
+.warn { outline: 2px solid #f2c45a; }
+.pd { width: 10px; height: 10px; border-radius: 50%; background: #e8a91c; flex: none; } .pd.ok { background: #3fa86b; } .pd.work { background: #3f86c8; }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; } .acts span { text-align: center; padding: .45rem; border-radius: 12px; background: #23180f; color: #fff; font-size: .78rem; font-weight: 650; } .acts span + span { background: #fff; color: #23180f; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 1.2rem; font: 500 .9rem/1.4 var(--sans); color: var(--ink-2); margin: 0; padding: 0; list-style: none; }
+.legend li { display: flex; align-items: center; gap: .45rem; }
+.legend .g { color: var(--ink-2); width: 16px; height: 16px; }
+.legend .needs .g, .legend .needs b { color: var(--orange); }
+.gray { filter: grayscale(1); }
+@media (max-width: 760px) { .pair { grid-template-columns: minmax(0,1fr); } }
+.scroll { overflow-x: auto; }
+.log { list-style: none; margin: 0; padding: .7rem .9rem; font-size: .75rem; line-height: 1.5; color: var(--dim); background: #111318; }
+.log li { padding: .15rem 0; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.log b { font-weight: 600; }
+.log-b b { color: var(--orange-soft); }
+.log-a b { color: #ece6dc; }
+.log-a .q, .log-a .q .g { color: var(--orange-soft); }
+.log .g { width: 12px; height: 12px; }
+.board figcaption { padding: .7rem .9rem; font: 400 .75rem/1.5 var(--sans); color: var(--dim); border-top: 1px solid var(--bline); }
+.a-failed .g { color: var(--dim); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="s-needs" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="currentColor"/><rect x="7" y="3.6" width="2" height="5.6" rx="1" fill="#fff"/><circle cx="8" cy="11.6" r="1.15" fill="#fff"/></symbol>
+  <symbol id="s-working" viewBox="0 0 16 16"><circle cx="3" cy="8" r="1.6" fill="currentColor"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="13" cy="8" r="1.6" fill="currentColor"/></symbol>
+  <symbol id="s-done" viewBox="0 0 16 16"><path d="M3 8.4l3.2 3.1L13 4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="s-idle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="s-failed" viewBox="0 0 16 16"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="s-clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.5V8l2.4 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+</svg>
+<div class="wrap">
+  <h1>Status marks on sheprd.org</h1>
+  <p class="lede">The site keeps its paper, ink and serif look. Only the places that show agent states change: one word, one shape per state, and the site's own orange for needs you only. Sample data is illustrative.</p>
+
+  <ul class="legend" aria-label="Status marks">
+    <li class="needs"><svg class="g"><use href="#s-needs"/></svg><b>needs you</b></li>
+    <li><svg class="g"><use href="#s-working"/></svg>working</li>
+    <li><svg class="g"><use href="#s-done"/></svg>done</li>
+    <li><svg class="g"><use href="#s-idle"/></svg>idle</li>
+    <li><svg class="g"><use href="#s-failed"/></svg>failed (when the daemon reports it)</li>
+  </ul>
+
+  <h3 class="sec">Chapter I board</h3>
+  <div class="pair">
+    <div class="col">
+      <h2><b>Today</b> · orange means working, needs you is coral and called "blocked"</h2>
+      <figure class="board" style="margin:0">
+        <div class="board-head"><span class="dots"><i></i><i></i><i></i></span><span>agents · all devices</span></div>
+        <div class="scroll"><table>
+          <thead><tr><th>status</th><th>worktree</th><th>agent</th><th>device</th><th class="r">time</th></tr></thead>
+          <tbody>
+            <tr class="b-working"><td><span class="st"><span class="dot"></span><span class="w">working</span></span></td><td>feat/multi-currency</td><td>claude</td><td>local</td><td class="r">04:12</td></tr>
+            <tr class="b-blocked"><td><span class="st"><span class="dot"></span><span class="w">blocked</span></span></td><td>fix/rounding</td><td>codex</td><td>build-box</td><td class="r">00:47</td></tr>
+            <tr class="b-done"><td><span class="st"><span class="dot"></span><span class="w">done</span></span></td><td>docs/http-surface</td><td>pi</td><td>local</td><td class="r">12:03</td></tr>
+            <tr class="b-working"><td><span class="st"><span class="dot"></span><span class="w">working</span></span></td><td>agent/42-paginate</td><td>gemini</td><td>gpu-runner</td><td class="r">01:58</td></tr>
+            <tr class="b-idle"><td><span class="st"><span class="dot"></span><span class="w">idle</span></span></td><td>pixel-forge/main</td><td>opencode</td><td>coder-ws</td><td class="r"></td></tr>
+          </tbody>
+        </table></div>
+      <ol class="log log-b" aria-label="Recent events (illustration)">
+          <li><b>build-box</b> codex is asking a question in fix/rounding</li>
+          <li><b>local</b> checkpoint saved · feat/multi-currency · turn 14</li>
+          <li><b>local</b> pi finished docs/http-surface · review ready</li>
+        </ol>
+        <figcaption>Hand-drawn board with sample data, showing the four statuses Sheprd reads from the terminal server: idle, working, blocked, done. Statuses change on a loop to show how the board updates.</figcaption>
+      </figure>
+      <p class="note">Same filled disc for three states, working dot pulses, rows switch on their own every 2.6 s. Device names in the log are orange, a second meaning for orange.</p>
+    </div>
+    <div class="col">
+      <h2><b>Proposed</b> · needs you first, with a count and wait time</h2>
+      <figure class="board" style="margin:0">
+        <div class="board-head"><span class="dots"><i></i><i></i><i></i></span><span>agents · all devices</span></div>
+        <div class="scroll"><table>
+          <thead><tr><th>status</th><th>worktree</th><th>agent</th><th>device</th><th class="r">time</th></tr></thead>
+          <tbody>
+            <tr class="grp hot"><td colspan="5">Needs you 1</td></tr>
+            <tr class="a-needs"><td><span class="st"><svg class="g" role="img" aria-label="Needs you"><use href="#s-needs"/></svg><span class="w">needs you</span></span></td><td>fix/rounding</td><td>codex</td><td>build-box</td><td class="r"><span class="wait">waiting 1m</span></td></tr>
+            <tr class="grp"><td colspan="5">Others</td></tr>
+            <tr><td><span class="st"><svg class="g" role="img" aria-label="Working"><use href="#s-working"/></svg><span class="w">working</span></span></td><td>feat/multi-currency</td><td>claude</td><td>local</td><td class="r">04:12</td></tr>
+            <tr><td><span class="st"><svg class="g" role="img" aria-label="Working"><use href="#s-working"/></svg><span class="w">working</span></span></td><td>agent/42-paginate</td><td>gemini</td><td>gpu-runner</td><td class="r">01:58</td></tr>
+            <tr><td><span class="st"><svg class="g" role="img" aria-label="Idle"><use href="#s-idle"/></svg><span class="w">idle</span></span></td><td>pixel-forge/main</td><td>opencode</td><td>coder-ws</td><td class="r"></td></tr>
+            <tr><td><span class="st"><svg class="g" role="img" aria-label="Done"><use href="#s-done"/></svg><span class="w">done</span></span></td><td>docs/http-surface</td><td>pi</td><td>local</td><td class="r">12:03</td></tr>
+          </tbody>
+        </table></div>
+      <ol class="log log-a" aria-label="Recent events (illustration)">
+          <li><b>build-box</b> <span class="q"><svg class="g" aria-hidden="true"><use href="#s-needs"/></svg>codex is asking a question</span> in fix/rounding</li>
+          <li><b>local</b> checkpoint saved · feat/multi-currency · turn 14</li>
+          <li><b>local</b> pi finished docs/http-surface · review ready</li>
+        </ol>
+        <figcaption>Hand-drawn board with sample data, showing the statuses Sheprd reads from the terminal server: needs you, working, idle, done.</figcaption>
+      </figure>
+      <p class="note">Static. Orange is the site's <code>--orange-soft</code> (8.1:1 on the panel); every other mark uses the panel's dim text color. In the log, device names move to the panel's light text (still bold); only the "is asking a question" event is orange, with the needs-you glyph. The table scrolls inside the board on narrow screens instead of widening the page. Under reduced motion nothing changes, as today.</p>
+    </div>
+  </div>
+
+  <h3 class="sec">Hero chips and phone sketch</h3>
+  <div class="pair">
+    <div class="col">
+      <h2><b>Today</b></h2>
+      <div class="chips" style="margin-bottom:1.2rem">
+        <div class="chip"><span class="dot" style="background:#3fa86b"></span> fix/rounding · done</div>
+        <div class="chip"><span class="dot" style="background:#d6452a"></span> claude needs you</div>
+      </div>
+      <div class="phone"><div class="screen">
+        <div class="card warn"><span class="pd"></span><div><b>ledger-api</b><small>claude asks: run the migration?</small></div></div>
+        <div class="acts"><span>Allow once</span><span>Deny</span></div>
+        <div class="card"><span class="pd ok"></span><div><b>pixel-forge</b><small>codex finished · 3 files</small></div></div>
+        <div class="card"><span class="pd work"></span><div><b>harbor-docs</b><small>pi is working · 4m</small></div></div>
+      </div></div>
+      <p class="note">Needs you is red on the chip and amber on the phone (amber dot on cream is 2.0:1); done green, working blue. The chips bob without end.</p>
+    </div>
+    <div class="col">
+      <h2><b>Proposed</b></h2>
+      <div class="chips" style="margin-bottom:1.2rem">
+        <div class="chip"><svg class="g" aria-hidden="true"><use href="#s-done"/></svg> fix/rounding · done</div>
+        <div class="chip needs"><svg class="g" aria-hidden="true"><use href="#s-needs"/></svg> <span class="t">claude needs you</span></div>
+      </div>
+      <div class="phone"><div class="screen">
+        <div class="card needs"><svg class="g" aria-hidden="true"><use href="#s-needs"/></svg><div><b>ledger-api</b><small>claude asks: run the migration? · <span class="wait">waiting 2m</span></small></div></div>
+        <div class="acts"><span>Allow once</span><span>Deny</span></div>
+        <div class="card"><svg class="g" aria-hidden="true"><use href="#s-working"/></svg><div><b>harbor-docs</b><small>pi is working · 4m</small></div></div>
+        <div class="card"><svg class="g" aria-hidden="true"><use href="#s-done"/></svg><div><b>pixel-forge</b><small>codex finished · 3 files</small></div></div>
+      </div></div>
+      <p class="note">Site <code>--orange</code> (5.4:1 on cream) for the needs-you glyph and wait time only. The chips no longer bob. Working comes before done. The amber card outline is replaced by the needs-you glyph.</p>
+    </div>
+  </div>
+
+  <h3 class="sec">Machines diagram</h3>
+  <p class="note" style="max-width:52rem">Not drawn here. The amber machine dot (<code>.node .warn</code>, #f2c45a) moves to the site's <code>--slate-3</code> with the needs-you glyph shape where it stands for an agent state, or is dropped. The green device dot becomes neutral too. The peach phone lines and nodes drop their orange tint, and the dashed lines stop flowing, as #1041 item 7 says.</p>
+
+  <h3 class="sec">Grayscale check</h3>
+  <ul class="legend gray" aria-label="Status marks in grayscale">
+    <li class="needs"><svg class="g"><use href="#s-needs"/></svg><b>needs you</b></li>
+    <li><svg class="g"><use href="#s-working"/></svg>working</li>
+    <li><svg class="g"><use href="#s-done"/></svg>done</li>
+    <li><svg class="g"><use href="#s-idle"/></svg>idle</li>
+    <li><svg class="g"><use href="#s-failed"/></svg>failed (when the daemon reports it)</li>
+  </ul>
+  <p class="note">Each state still has its own shape and word without color.</p>
+</div>
+</body>
+</html>

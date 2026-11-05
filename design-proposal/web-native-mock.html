@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Web app Home mock</title>
+<style>
+/* "Today" uses the values in crates/sheprd-remote-control/src/web/assets/input.css
+   (dark :10-31, light :33-55, brand tiles :69-72). "Proposed" keeps the same
+   neutrals and accent and adds one status token, --needs: the file's existing
+   orange (#f5a34b), darkened in light to #a8580f so text passes 4.5:1.
+   Today's side is sized in px, as the app is; the proposed side in rem. */
+:root{
+ --bg:#000;--surface:#1c1c1e;--raised:#2c2c2e;--line:#38383a;--text:#f2f2f7;--muted:#8e8e93;--faint:#636366;--accent:#7c9cff;
+ --amber:#f2b33d;--green:#4fd18b;--red:#ff6b6b;--pr-held:#f5a34b;--pr-merged:#c792ea;
+ --st-working:#f9e2af;--st-blocked:#f38ba8;--st-done:#94e2d5;--st-idle:#a6e3a1;--st-unknown:#6c7086;
+ --needs:#f5a34b;--on-needs:#000;
+ --page:#111113;--page-text:#f2f2f7;--page-muted:#a1a1a6;--frame:#2c2c2e;
+ --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,sans-serif;
+ color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+ --bg:#f2f2f7;--surface:#fff;--raised:#e5e5ea;--line:#d1d1d6;--text:#1c1c1e;--muted:#6c6c70;--faint:#aeaeb2;--accent:#3b5bdb;
+ --amber:#c98a0b;--green:#1f9d5c;--red:#d64545;--pr-held:#b96514;--pr-merged:#8839ef;
+ --st-working:#b07d12;--st-blocked:#d0345e;--st-done:#1b9a87;--st-idle:#2e9b45;--st-unknown:#8c8fa1;
+ --needs:#a8580f;--on-needs:#fff;
+ --page:#e5e5ea;--page-text:#1c1c1e;--page-muted:#56565b;--frame:#c7c7cc;color-scheme:light}}
+:root[data-theme="light"]{
+ --bg:#f2f2f7;--surface:#fff;--raised:#e5e5ea;--line:#d1d1d6;--text:#1c1c1e;--muted:#6c6c70;--faint:#aeaeb2;--accent:#3b5bdb;
+ --amber:#c98a0b;--green:#1f9d5c;--red:#d64545;--pr-held:#b96514;--pr-merged:#8839ef;
+ --st-working:#b07d12;--st-blocked:#d0345e;--st-done:#1b9a87;--st-idle:#2e9b45;--st-unknown:#8c8fa1;
+ --needs:#a8580f;--on-needs:#fff;
+ --page:#e5e5ea;--page-text:#1c1c1e;--page-muted:#56565b;--frame:#c7c7cc;color-scheme:light}
+/* Proposed: stronger secondary text and lines under increased contrast. */
+@media (prefers-contrast:more){
+ :root:not([data-theme]) .prop,:root[data-theme="dark"] .prop{--muted:#c7c7cc;--line:#636366}
+ :root[data-theme="light"] .prop{--muted:#3a3a3c;--line:#8e8e93}}
+@media (prefers-contrast:more) and (prefers-color-scheme:light){:root:not([data-theme]) .prop{--muted:#3a3a3c;--line:#8e8e93}}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--page-text);font-family:var(--font);padding:24px 16px 48px;-webkit-font-smoothing:antialiased}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;margin-bottom:8px}
+.top h1{font:700 18px/1.3 var(--font);margin-right:16px}
+.top button{font:500 13px/1 var(--font);color:var(--page-text);background:var(--frame);border:0;border-radius:16px;padding:8px 14px;min-height:32px;cursor:pointer}
+.top button[aria-pressed="true"]{background:var(--page-text);color:var(--page)}
+.top button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sub{text-align:center;font:400 13px/1.4 var(--font);color:var(--page-muted);margin-bottom:20px}
+.wrap{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+.col{width:640px;max-width:100%}
+.col>h2,.pwa-col>h2{font:600 13px/1.3 var(--font);text-align:center;margin-bottom:10px;color:var(--page-muted);letter-spacing:.04em;text-transform:uppercase}
+.row2{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;align-items:flex-start;margin-top:40px}
+.pwa-col{width:410px;max-width:100%}
+
+/* Browser frame around the app */
+.browser{border-radius:12px;overflow:hidden;border:1px solid var(--frame);background:var(--bg);position:relative}
+.chrome{display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;background:var(--frame);color:var(--page-muted);font:400 12px/1 var(--font)}
+.chrome i{width:10px;height:10px;border-radius:50%;background:var(--page-muted);opacity:.45;display:inline-block}
+.chrome .url{flex:1;text-align:center;margin-right:40px}
+.phone{border-radius:44px;border:10px solid var(--frame);overflow:hidden;background:var(--bg);position:relative}
+.sbar{display:flex;justify-content:space-between;padding:12px 24px 2px;font:600 15px/20px var(--font);color:var(--text)}
+
+/* The app, shared */
+.app{color:var(--text);font-family:var(--font);padding:0 14px 96px;position:relative;min-height:760px}
+.app svg{display:block;flex:none}
+.group-list{background:var(--surface);border-radius:16px;overflow:hidden;list-style:none}
+.r{position:relative;display:flex;align-items:center;gap:12px;padding:10px 12px;min-height:44px;color:var(--text);text-decoration:none}
+.group-list>li+li>.r::before{content:"";position:absolute;top:0;left:52px;right:0;border-top:1px solid var(--line)}
+.tile{position:relative;display:grid;place-items:center;width:30px;height:30px;border-radius:8px;flex:none;font-weight:700}
+.tx{flex:1;min-width:0}
+.chev{color:var(--faint)}
+.search{position:sticky;top:0;z-index:1;margin:0 -14px;padding:12px 14px 6px;background:var(--bg)}
+.field{display:block;width:100%;background:var(--surface);color:var(--muted);border:1px solid transparent;border-radius:12px;padding:10px 12px;font:inherit}
+.prop .field{padding:.625rem .75rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.prop button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.prop :is(a,button):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.prop .group-list a:focus-visible{outline-offset:-2px;border-radius:inherit}
+
+/* Today (px, as input.css) */
+.today .app{font-size:15px;line-height:1.45}
+.today .head{display:flex;align-items:center;gap:10px;padding:16px 4px 6px}
+.today .head b{font-size:19px;font-weight:700}
+.today .more{margin-left:auto;color:var(--muted);letter-spacing:.1em;padding:0 8px}
+.today .ws{display:flex;align-items:center;gap:12px;padding:12px 6px 6px;color:var(--muted);font-weight:600;font-size:13.5px}
+.today .ws .n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.today .ws .br{font-weight:400;color:var(--faint)}
+.today .t{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.strip{display:flex;gap:10px;overflow:hidden;padding:12px 0 4px}
+.strip-card{display:flex;flex:none;flex-basis:82%;gap:10px;align-items:center;padding:10px 12px;border-radius:16px;border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);background:color-mix(in srgb,var(--amber) 16%,var(--surface))}
+.strip-card .tile{width:26px;height:26px;font-size:13px}
+.strip-card b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.strip-card small{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dot-corner{position:absolute;top:-4px;right:-4px;width:10px;height:10px;border-radius:50%;border:2px solid var(--surface);background:var(--amber)}
+.pill-amber{font-size:11px;font-weight:700;color:#000;background:var(--amber);border-radius:999px;padding:2px 8px}
+.status-dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--st)}
+.st-working{--st:var(--st-working)}.st-blocked{--st:var(--st-blocked)}.st-done{--st:var(--st-done)}.st-idle{--st:var(--st-idle)}
+.status-dot.st-working{animation:blink 1.4s ease-in-out infinite}
+.status-dot.st-idle{background:transparent;box-shadow:inset 0 0 0 2px var(--st)}
+@keyframes blink{50%{opacity:.35}}
+.pr{font-size:12px;font-weight:600;padding:0 4px;font-variant-numeric:tabular-nums}
+.toolbar{position:absolute;left:16px;right:16px;bottom:18px;display:flex;justify-content:center}
+.glass{display:flex;gap:24px;align-items:center;padding:10px 20px;border-radius:999px;border:1px solid rgb(255 255 255 / .1);box-shadow:0 10px 24px rgb(0 0 0 / .3);background:color-mix(in srgb,var(--raised) 70%,transparent);backdrop-filter:blur(18px) saturate(1.6);-webkit-backdrop-filter:blur(18px) saturate(1.6);color:var(--text)}
+.today .glass>span{position:relative;min-width:28px;display:grid;place-items:center}
+.today .badge{font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 6px}
+
+/* Proposed (rem steps from a 16px root) */
+.prop .app{font-size:.9375rem;line-height:1.45}
+.prop .head{display:flex;align-items:center;gap:.625rem;padding:1rem .25rem .375rem}
+.prop .head b{font-size:1.1875rem;font-weight:700}
+.prop .more{margin-left:auto;color:var(--muted);display:grid;place-items:center;min-width:44px;min-height:44px;border-radius:10px}
+.prop .ws{display:flex;align-items:center;gap:.25rem;padding:.5rem .375rem .25rem;color:var(--muted);font-weight:600;font-size:.8125rem}
+.prop .ws .n{flex:1;min-width:0}
+.prop .ws .br{font-weight:400;color:var(--muted)}
+.prop .ws .btn{display:grid;place-items:center;min-width:44px;min-height:44px;border-radius:10px;color:var(--muted)}
+.prop .sec{display:flex;align-items:baseline;gap:.5rem;padding:1rem .375rem .375rem;font-size:.9375rem;font-weight:600}
+.prop .sec .n{color:var(--needs)}
+.prop .t{display:block;overflow-wrap:anywhere}
+.prop .d{display:block;color:var(--muted);font-size:.8125rem;line-height:1.35}
+.prop .tile{background:var(--raised);color:var(--text);font-size:1rem}
+.prop .tile.term{font:700 .6875rem/1 ui-monospace,Menlo,monospace;color:var(--text)}
+.mark{width:16px;height:16px;flex:none;color:var(--muted)}
+.mark.needs{color:var(--needs)}
+.ans{font-size:.8125rem;font-weight:600;color:var(--needs)}
+.wait{color:var(--muted)}
+.wait.long{color:var(--needs);font-weight:600}
+.wait svg{display:inline-block;vertical-align:-2px;margin-right:2px}
+.prop .pr{color:var(--muted);font-size:.75rem}
+.prop .glass>button{position:relative;min-width:44px;min-height:44px;display:grid;place-items:center}
+.prop .glass{padding:0 12px;gap:8px}
+.cnt{position:absolute;top:2px;right:0;min-width:1.5em;height:1.5em;padding:0 .35em;border-radius:.75em;background:var(--needs);color:var(--on-needs);font:700 .6875rem/1.5em var(--font);text-align:center}
+.focus{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-transparency:reduce){.prop .glass{background:var(--raised);backdrop-filter:none;-webkit-backdrop-filter:none;border-color:var(--line)}}
+@media (prefers-contrast:more){.prop .glass{background:var(--raised);backdrop-filter:none;-webkit-backdrop-filter:none;border-color:var(--line)}}
+@media (prefers-reduced-motion:reduce){.status-dot.st-working{animation:none}}
+
+/* Legend */
+.legend{width:640px;max-width:100%;font:400 14px/1.45 var(--font);color:var(--page-muted)}
+.legend h2{font:600 16px/1.3 var(--font);color:var(--page-text);margin:0 0 10px}
+.legend ol{padding-left:20px;display:grid;gap:7px}
+.legend b{color:var(--page-text);font-weight:600}
+.legend p{margin-top:12px;font-size:13px}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;margin:12px 0 4px;color:var(--page-text)}
+.key span{display:inline-flex;align-items:center;gap:6px}
+.key .mark{color:var(--page-muted)}
+.key .mark.needs{color:var(--needs)}
+@media (max-width:700px){.col,.legend{width:100%}.chrome .url{margin-right:0}}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <symbol id="i-computer" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.6V8l2.3 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <!-- Proposed status glyphs, one shape per state -->
+  <symbol id="s-needs" viewBox="0 0 16 16"><mask id="m-needs"><rect width="16" height="16" fill="#fff"/><path d="M8 4.2v4.6" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="8" cy="11.6" r="1.15" fill="#000"/></mask><circle cx="8" cy="8" r="7" fill="currentColor" mask="url(#m-needs)"/></symbol>
+  <symbol id="s-working" viewBox="0 0 16 16"><circle cx="3" cy="8" r="1.6" fill="currentColor"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="13" cy="8" r="1.6" fill="currentColor"/></symbol>
+  <symbol id="s-done" viewBox="0 0 16 16"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="s-idle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="s-failed" viewBox="0 0 16 16"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+ </defs>
+</svg>
+
+<div class="top" role="group" aria-label="Color scheme">
+ <h1>Web app Home: today and proposed</h1>
+ <button type="button" data-t="auto" aria-pressed="true">Auto</button>
+ <button type="button" data-t="light" aria-pressed="false">Light</button>
+ <button type="button" data-t="dark" aria-pressed="false">Dark</button>
+</div>
+<p class="sub">Sample data is illustrative. Default Dots indicator set. Letters stand in for the agent logos. Neutrals, accent, font and layout are the same on both sides.</p>
+
+<div class="wrap">
+ <!-- TODAY -->
+ <section class="col today" aria-label="Today">
+  <h2>Today</h2>
+  <div class="browser">
+   <div class="chrome"><i></i><i></i><i></i><span class="url">studio-mac.local / Sheprd</span></div>
+   <div class="app">
+    <div class="search"><input class="field" type="search" placeholder="Search" aria-label="Search chats and terminals"></div>
+    <div class="strip">
+     <a class="strip-card"><span class="tile" style="background:#d9643a;color:#fff">C</span><span style="min-width:0"><b>Allow edit to src/webhooks/retry.ts?</b><small>api-server <span class="pr" style="color:var(--st-idle)">#212</span> · Add retry to webhook sender</small></span></a>
+     <a class="strip-card"><span class="tile" style="background:#6e40c9;color:#fff">P</span><span style="min-width:0"><b>Run npm test -- --update?</b><small>web-dashboard <span class="pr" style="color:var(--pr-held)">#87</span> · Fix flaky e2e · 2 waiting</small></span></a>
+    </div>
+    <div class="head"><span style="color:var(--muted)"><svg width="22" height="22"><use href="#i-computer"/></svg></span><b>studio-mac</b><span class="more">•••</span></div>
+
+    <div class="ws"><span class="n">api-server<span class="br"> · fix/rate-limit</span></span><span class="pr" style="color:var(--st-idle)">#212</span><svg width="20" height="20"><use href="#i-plus-circle"/></svg><svg width="18" height="18"><use href="#i-chev-down"/></svg></div>
+    <ul class="group-list">
+     <li><a class="r"><span class="tile" style="background:#d9643a;color:#fff;font-size:16px">C<i class="dot-corner"></i></span><span class="tx t">Add retry to webhook sender</span><span class="pill-amber">Answer</span><span class="status-dot st-blocked" role="img" aria-label="Blocked"></span><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r"><span class="tile" style="background:#111;color:#fff;box-shadow:0 0 0 1px var(--line);font-size:16px">X</span><span class="tx t">Refactor auth middleware into smaller handlers</span><span class="status-dot st-working" role="img" aria-label="Working"></span><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r"><span class="tile" style="background:#d9643a;color:#fff;font-size:16px">C</span><span class="tx t">tests</span><span class="status-dot st-blocked" role="img" aria-label="Blocked"></span><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+    </ul>
+
+    <div class="ws"><span class="n">web-dashboard<span class="br"> · feat/billing-page</span></span><span class="pr" style="color:var(--pr-held)">#87</span><svg width="20" height="20"><use href="#i-plus-circle"/></svg><svg width="18" height="18"><use href="#i-chev-down"/></svg></div>
+    <ul class="group-list">
+     <li><a class="r"><span class="tile" style="background:#3b7cf0;color:#fff;font-size:16px">G</span><span class="tx t">Billing page layout</span><span class="status-dot st-done" role="img" aria-label="Done"></span><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r"><span class="tile" style="background:#6e40c9;color:#fff;font-size:16px">P<i class="dot-corner"></i></span><span class="tx t">Fix flaky e2e</span><span class="pill-amber">Answer</span><span class="status-dot st-blocked" role="img" aria-label="Blocked"></span><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r"><span class="tile" style="background:var(--raised);color:var(--green);font:700 11px/1 ui-monospace,Menlo,monospace">›_</span><span class="tx t">dev server</span><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+    </ul>
+
+    <div class="ws"><span class="n">docs<span class="br"> · main</span></span><svg width="20" height="20"><use href="#i-plus-circle"/></svg><svg width="18" height="18"><use href="#i-chev-down"/></svg></div>
+    <ul class="group-list">
+     <li><a class="r"><span class="tile" style="background:var(--raised);color:var(--text);font-size:16px">O</span><span class="tx t">Update API reference</span><span class="status-dot st-idle" role="img" aria-label="Idle"></span><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r"><span class="tile" style="background:var(--raised);color:var(--text);font-size:16px">π</span><span class="tx t">Migrate config loader</span><span class="status-dot st-idle" role="img" aria-label="Idle"></span><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+    </ul>
+
+    <nav class="toolbar"><div class="glass">
+     <span aria-label="Settings"><svg width="24" height="24"><use href="#i-gear"/></svg></span>
+     <span aria-label="Show what needs you"><svg width="24" height="24"><use href="#i-target"/></svg><i class="dot-corner" style="border-color:var(--raised)"></i></span>
+     <span aria-label="New workspace"><svg width="24" height="24"><use href="#i-plus"/></svg></span>
+    </div></nav>
+   </div>
+  </div>
+ </section>
+
+ <!-- PROPOSED -->
+ <section class="col prop" aria-label="Proposed">
+  <h2>Proposed</h2>
+  <div class="browser">
+   <div class="chrome"><i></i><i></i><i></i><span class="url">studio-mac.local / (3) Sheprd</span></div>
+   <div class="app" id="prop-app">
+    <div class="search"><input class="field" type="search" placeholder="Search" aria-label="Search chats and terminals"></div>
+    <div class="head"><span style="color:var(--muted)"><svg width="22" height="22"><use href="#i-computer"/></svg></span><b>studio-mac</b><a class="more focus" href="#" aria-label="Settings"><svg width="22" height="22"><use href="#i-dots"/></svg></a></div>
+
+    <h3 class="sec">Needs you <span class="n">3<span class="sr"> agents waiting</span></span></h3>
+    <ul class="group-list">
+     <li><a class="r" href="#"><span class="tile">P</span><span class="tx"><span class="t">Run npm test -- --update?</span><span class="d">web-dashboard · Fix flaky e2e · <span class="wait long"><svg width="13" height="13"><use href="#i-clock"/></svg>waiting 7m</span></span></span><span class="ans">Answer</span><svg class="mark needs" role="img" aria-label="Needs you, waiting 7 minutes"><use href="#s-needs"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r" href="#"><span class="tile">C</span><span class="tx"><span class="t">Allow edit to src/webhooks/retry.ts?</span><span class="d">api-server · Add retry to webhook sender · <span class="wait">waiting 2m</span></span></span><span class="ans">Answer</span><svg class="mark needs" role="img" aria-label="Needs you, waiting 2 minutes"><use href="#s-needs"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r" href="#"><span class="tile">C</span><span class="tx"><span class="t">tests</span><span class="d">api-server · terminal · <span class="wait">waiting 1m</span></span></span><svg class="mark needs" role="img" aria-label="Needs you, waiting 1 minute"><use href="#s-needs"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+    </ul>
+
+    <div class="ws"><span class="n">api-server<span class="br"> · fix/rate-limit</span></span><span class="pr">#212 Ready</span><button type="button" class="btn" aria-label="New chat"><svg width="20" height="20"><use href="#i-plus-circle"/></svg></button><button type="button" class="btn" aria-label="Collapse api-server" aria-expanded="true"><svg width="18" height="18"><use href="#i-chev-down"/></svg></button></div>
+    <ul class="group-list">
+     <li><a class="r" href="#"><span class="tile">C</span><span class="tx t">Add retry to webhook sender</span><svg class="mark needs" role="img" aria-label="Needs you"><use href="#s-needs"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r" href="#"><span class="tile">X</span><span class="tx t">Refactor auth middleware into smaller handlers</span><svg class="mark" role="img" aria-label="Working"><use href="#s-working"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r" href="#"><span class="tile">C</span><span class="tx t">tests</span><svg class="mark needs" role="img" aria-label="Needs you"><use href="#s-needs"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+    </ul>
+
+    <div class="ws"><span class="n">web-dashboard<span class="br"> · feat/billing-page</span></span><span class="pr">#87 Behind</span><button type="button" class="btn" aria-label="New chat"><svg width="20" height="20"><use href="#i-plus-circle"/></svg></button><button type="button" class="btn" aria-label="Collapse web-dashboard" aria-expanded="true"><svg width="18" height="18"><use href="#i-chev-down"/></svg></button></div>
+    <ul class="group-list">
+     <li><a class="r" href="#"><span class="tile">G</span><span class="tx t">Billing page layout</span><svg class="mark" role="img" aria-label="Done"><use href="#s-done"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r" href="#"><span class="tile">P</span><span class="tx t">Fix flaky e2e</span><svg class="mark needs" role="img" aria-label="Needs you"><use href="#s-needs"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r" href="#"><span class="tile term">›_</span><span class="tx t">dev server</span><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+    </ul>
+
+    <div class="ws"><span class="n">docs<span class="br"> · main</span></span><button type="button" class="btn" aria-label="New chat"><svg width="20" height="20"><use href="#i-plus-circle"/></svg></button><button type="button" class="btn" aria-label="Collapse docs" aria-expanded="true"><svg width="18" height="18"><use href="#i-chev-down"/></svg></button></div>
+    <ul class="group-list">
+     <li><a class="r" href="#"><span class="tile">O</span><span class="tx t">Update API reference</span><svg class="mark" role="img" aria-label="Idle"><use href="#s-idle"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+     <li><a class="r" href="#"><span class="tile">π</span><span class="tx t">Migrate config loader</span><svg class="mark" role="img" aria-label="Failed"><use href="#s-failed"/></svg><svg class="chev" width="18" height="18"><use href="#i-chev-right"/></svg></a></li>
+    </ul>
+
+    <nav class="toolbar"><div class="glass">
+     <button type="button" aria-label="Settings"><svg width="24" height="24"><use href="#i-gear"/></svg></button>
+     <button type="button" aria-label="Show what needs you, 3"><svg width="24" height="24"><use href="#i-target"/></svg><b class="cnt">3</b></button>
+     <button type="button" aria-label="New workspace"><svg width="24" height="24"><use href="#i-plus"/></svg></button>
+    </div></nav>
+   </div>
+  </div>
+ </section>
+</div>
+
+<div class="row2">
+ <section class="pwa-col prop" aria-label="Proposed, installed web app at 390px">
+  <h2>Proposed, installed app, 390px</h2>
+  <div class="phone" id="pwa">
+   <div class="sbar"><span>9:41</span><span>100%</span></div>
+   <div class="app" id="pwa-app"></div>
+  </div>
+ </section>
+ <section class="legend" aria-label="What changed">
+  <h2>What changed</h2>
+  <div class="key">
+   <span><svg class="mark needs"><use href="#s-needs"/></svg>Needs you</span>
+   <span><svg class="mark"><use href="#s-working"/></svg>Working</span>
+   <span><svg class="mark"><use href="#s-done"/></svg>Done</span>
+   <span><svg class="mark"><use href="#s-idle"/></svg>Idle</span>
+   <span><svg class="mark"><use href="#s-failed"/></svg>Failed</span>
+  </div>
+  <ol>
+   <li><b>Needs you first.</b> The amber sideways strip becomes a "Needs you 3" section on top. It now includes the blocked terminal agent ("tests"), which today shows only as a pink dot inside its workspace.</li>
+   <li><b>One count.</b> The header count, the toolbar's Board button, the app badge and the page title ("(3) Sheprd") all show agents waiting. Today the badge adds up questions and the toolbar shows a dot with no number.</li>
+   <li><b>One color.</b> Orange means needs you and nothing else. Working, done, idle and failed are grey and told apart by shape: ellipsis, check, ring, X. Today needs you is amber and pink on the same row, and working, done and idle are yellow, teal and green discs.</li>
+   <li><b>Failed is visible</b> (needs a failed state from the daemon). "Migrate config loader" exited with an error. Today the Home mark has no failed shape (it only knows idle, working, blocked, done and unknown), so it shows the last status reported, idle here; proposed it shows an X, in grey, not red.</li>
+   <li><b>Wait time</b> (needs <code>waiting_since</code> from the daemon for chats; terminal agents can use <code>changed_ms</code>). Needs-you rows say "waiting 2m". After 5 minutes the label gets a clock, semibold and orange.</li>
+   <li><b>Monochrome logos.</b> Every agent tile is grey with the logo in the text color. No orange Claude tile next to a status mark.</li>
+   <li><b>PR as a word.</b> "#212 Ready" and "#87 Behind" in grey, instead of a green or orange number.</li>
+   <li><b>Access.</b> rem sizes; question titles wrap to as many lines as they need instead of clipping at large text; a 2px focus ring on every link and button (shown statically on the settings button, Tab shows it anywhere); labels on icon-only buttons; 44px targets on touch. The toolbar stays glass, solid under reduced transparency and increased contrast.</li>
+   <li><b>Motion.</b> When an agent starts needing you, its row moves once into the Needs you section with a short spring, and the app badge and title count update at the same moment. Under reduced motion a cross-fade replaces the move. Nothing animates on refresh or as the age ticks. The working dot's blink and spin are removed, not only stopped under reduced motion (the app already stops them under reduced motion today).</li>
+  </ol>
+  <p>Not changed: neutral greys, accent, font stack, layout, toolbar position, manifest colors.</p>
+ </section>
+</div>
+
+<script>
+// The 390px view reuses the proposed list.
+document.getElementById('pwa-app').innerHTML=document.getElementById('prop-app').innerHTML;
+const root=document.documentElement;
+document.querySelectorAll('.top button').forEach(b=>b.addEventListener('click',()=>{
+ const t=b.dataset.t;
+ if(t==='auto')root.removeAttribute('data-theme');else root.setAttribute('data-theme',t);
+ document.querySelectorAll('.top button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+}));
+</script>
+</body></html>
